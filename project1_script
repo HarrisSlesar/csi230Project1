@@ -110,7 +110,7 @@ if [[ $(/usr/bin/id -u) -ne 0 ]]; then
 	exit
 fi	
 
-cat > /home/harrisslesar/project1_page.html <<- _EOF_
+cat > project1_page.html <<- _EOF_
 	<html>
 	<head>
 		<title>$TITLE</title>
@@ -123,8 +123,8 @@ cat > /home/harrisslesar/project1_page.html <<- _EOF_
 		$(system_ip)
 		$(cpu_info)
 		$(memory_info)
-		$(user_info)
 		$(drive_info)
+		$(user_info)
 		$(home_space)
 		$(show_uptime)
 	</body>
