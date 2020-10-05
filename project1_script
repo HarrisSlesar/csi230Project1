@@ -1,0 +1,132 @@
+#!/bin/bash
+
+
+# brief  Project 1 script for outputing system information to an html file
+# author harris.slesar
+# date 10/4/2020
+
+
+
+#### CONSTANTS
+TITLE="My System Information for $HOSTNAME"
+RIGHT_NOW="$(date +"%x %r %Z")"
+TIME_STAMP="Updated on $RIGHT_NOW by $USER"
+
+
+#### FUNCTIONS
+
+#Gets the system's ip information and uses grep to isolate the ip number
+system_ip()
+{
+   echo "<h2>System IP</h2>"
+   echo "<pre>"
+    #example found from https://stackoverflow.com/questions/13322485/how-to-get-the-primary-ip-address-of-the-local-machine-on-linux-and-os-x
+   ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'
+   echo "</pre>"
+} 
+
+#Uses lsb_release to get the system information
+system_info()
+{
+   
+    echo "<h2>System release info</h2>"
+    echo "<pre>"
+    lsb_release -a
+    echo "Kernal version: $(uname -v)"
+    echo "</pre>"
+} 
+
+#uses lscpu to get the cpu info
+cpu_info()
+{
+    echo "<h2>CPU information</h2>"
+    echo "<pre>"
+    lscpu
+    echo "</pre>"
+}
+
+#uses free -m to get memory information
+memory_info()
+{
+    echo "<h2>Memory information (in Megabytes)</h2>"
+    echo "<pre>"
+    free -m
+    echo "</pre>"
+}
+
+#uses uptime command to get uptime
+show_uptime()
+{
+    echo "<h2>System uptime</h2>"
+    echo "<pre>"
+    uptime
+    echo "</pre>"
+}
+
+#uses parted -l to get the drive and partition info
+drive_info()
+{
+    echo "<h2>Disk information</h2>"
+    echo "<pre>"
+    parted -l
+    echo "</pre>"
+}
+
+#gets the user info, asks if the user groups should be included, and then prints out the info
+user_info()
+{
+    echo "<h2>User information</h2>"
+    echo "<pre>"
+    read -p "Would you like to include user groups? Y/N: " input
+    
+	if [[ $input == "n" || $input == "N" ]]; then
+		getent passwd | cut -d: -f1
+	else
+		for user in $(getent passwd | cut -d: -f1); do
+			groups $user
+		done
+	fi
+    
+    echo "</pre>"
+}
+
+#uses du to get user directory space
+home_space()
+{
+   echo "<h2>Home directory space by user</h2>"
+   echo "<pre>"
+   echo "Bytes Directory"
+   du -s /home/* | sort -nr
+   echo "</pre>"
+}
+
+
+
+
+##### Main
+
+if [[ $(/usr/bin/id -u) -ne 0 ]]; then
+	echo "Must run as Root"
+	exit
+fi	
+
+cat > /home/harrisslesar/project1_page.html <<- _EOF_
+	<html>
+	<head>
+		<title>$TITLE</title>
+	</head>
+	 
+	<body>
+		<h1>$TITLE</h1>
+		<p>$TIME_STAMP</p>
+		$(system_info)
+		$(system_ip)
+		$(cpu_info)
+		$(memory_info)
+		$(user_info)
+		$(drive_info)
+		$(home_space)
+		$(show_uptime)
+	</body>
+	</html>
+_EOF_
