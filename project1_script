@@ -110,7 +110,7 @@ if [[ $(/usr/bin/id -u) -ne 0 ]]; then
 	exit
 fi	
 
-cat > project1_page.html <<- _EOF_
+cat > /home/harrisslesar/project1_page.html <<- _EOF_
 	<html>
 	<head>
 		<title>$TITLE</title>
